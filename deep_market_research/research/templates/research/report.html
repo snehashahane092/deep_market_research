@@ -1,0 +1,156 @@
+{# {% extends 'research/base.html' %} #}
+
+{% block title %}Report: {{ topic }}{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        h1 {
+            font-size: 2.4em;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #2d3e50;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 5px;
+        }
+
+        p {
+            font-size: 1.05em;
+            line-height: 1.6;
+            color: #4d4d4d;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            margin-top: 40px;
+            font-size: 0.95em;
+        }
+
+        .actions a,
+        .actions button {
+            margin-right: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .actions button:hover,
+        .actions a:hover {
+            background-color: #2980b9;
+        }
+
+        /* Simple fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            .report-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+
+    <div class="report-container">
+        <h1>Deep Market Research Report: {{ topic }}</h1>
+
+        {% for section, content in results.items %}
+            {% if section != 'insights' %}
+                <h2>{{ section|title }}</h2>
+                <p>{{ content|linebreaks|truncatewords:200 }}</p>
+            {% endif %}
+        {% endfor %}
+
+        {% if results.insights %}
+            <h2>Actionable Insights</h2>
+            <p>{{ results.insights|linebreaks|truncatewords:150 }}</p>
+        {% endif %}
+
+        <h2>Citations</h2>
+        <ul>
+            {% for cite in citations %}
+                <li>
+                    [{{ cite.id }}]
+                    <a href="{{ cite.source }}" target="_blank">{{ cite.source|truncatechars:100 }}</a>
+                </li>
+            {% empty %}
+                <li>No citations available.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="actions">
+            <a href="{% url 'home' %}">New Research</a>
+            <button onclick="window.print()">Print Report</button>
+            <form method="post" action="{{ pdf_url|default:'' }}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Download PDF</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
